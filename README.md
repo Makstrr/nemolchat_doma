@@ -14,6 +14,45 @@
 - **Backend:** FastAPI, PostgreSQL, Scrapy, Selenium
 - **ML:** Tensorflow
 
+## Использование
+
+- ### **Токенизатор:**
+```python
+import razdel
+import pickle
+import tokenizers
+
+with open('ml/models/subtokenizer50k_razdel.pickle', 'rb') as handle:
+    tokenizer = pickle.load(handle)
+
+def razdel_tokenize(text):
+    tokens = [token.text for token in razdel.tokenize(text)]
+    return " ".join(tokens)
+
+text = razdel_tokenize("текст для проверки")
+sequence = [tokenizer.encode(text).ids]
+print(sequence)
+```
+- ### **Модель:**
+```python
+from ml.models.multihead_self_attention import MultiHeadSelfAttention
+import keras
+
+with keras.utils.custom_object_scope({'MultiHeadSelfAttention': MultiHeadSelfAttention}):
+    model = keras.models.load_model('ml/models/beta_sentiment_analyzer50k_subtokenized.keras')
+
+padded_sequence = ...
+prediction = model.predict(padded_sequence)
+
+tonality_mapping = {
+    0: 'отрицательный',
+    1: 'нейтральный',
+    2: 'положительный'
+}
+
+print(tonality_mapping[prediction])
+```
+
 ## Авторы
 
 Проект разрабатывается студентами ИРИТ-РТФ УрФУ в рамках дисциплины "Проектный практикум"
